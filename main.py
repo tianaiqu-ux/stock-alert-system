@@ -3,7 +3,7 @@ from datetime import datetime
 from news_fetcher import fetch_all_news
 from report_generator import (
     build_morning_brief_cn,
-    export_excel,
+    export_csv,
     export_markdown,
     summarize_by_source,
     top_titles,
@@ -18,8 +18,8 @@ def main() -> None:
 
     print("=== 晨报摘要 ===")
     print(f"抓取时间: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
-    print(f"重要新闻数量: {len(news_items)}")
-    print("来源统计:")
+    print(f"今日重要新闻总数: {len(news_items)}")
+    print("分来源数量:")
     for source, count in source_stats.items():
         print(f"- {source}: {count}")
 
@@ -27,15 +27,15 @@ def main() -> None:
     for idx, title in enumerate(top5, start=1):
         print(f"{idx}. {title}")
 
-    print("\n200字中文晨报:")
+    print("\n约200字中文晨报:")
     print(brief)
 
     md_path = export_markdown(news_items, source_stats, top5, brief)
-    xlsx_path = export_excel(news_items)
+    csv_path = export_csv(news_items)
 
     print("\n已保存文件:")
     print(f"- {md_path}")
-    print(f"- {xlsx_path}")
+    print(f"- {csv_path}")
 
 
 if __name__ == "__main__":

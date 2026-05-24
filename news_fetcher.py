@@ -3,9 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from email.utils import parsedate_to_datetime
 from typing import Dict, List
+from urllib.request import Request, urlopen
 import xml.etree.ElementTree as ET
-
-import requests
 
 
 @dataclass
@@ -22,6 +21,9 @@ RSS_SOURCES: Dict[str, str] = {
     "Reuters": "https://www.reutersagency.com/feed/?best-topics=business-finance&post_type=best",
     "WSJ": "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
 }
+
+
+USER_AGENT = "Mozilla/5.0 (compatible; StockAlertSystem/1.0)"
 
 
 def _first_text(node: ET.Element, tags: List[str]) -> str:
@@ -42,10 +44,11 @@ def _parse_date(raw: str) -> str:
 
 
 def fetch_rss(source: str, url: str, timeout: int = 15) -> List[NewsItem]:
-    resp = requests.get(url, timeout=timeout, headers={"User-Agent": "Mozilla/5.0"})
-    resp.raise_for_status()
+    req = Request(url, headers={"User-Agent": USER_AGENT})
+    with urlopen(req, timeout=timeout) as resp:
+        content = resp.read()
 
-    root = ET.fromstring(resp.content)
+    root = ET.fromstring(content)
     items: List[NewsItem] = []
 
     for node in root.findall(".//item"):

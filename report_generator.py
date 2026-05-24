@@ -1,11 +1,10 @@
 from __future__ import annotations
 
+import csv
 from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
-
-import pandas as pd
 
 from news_fetcher import NewsItem
 
@@ -70,20 +69,26 @@ def export_markdown(news: List[NewsItem], source_stats: Dict[str, int], top5: Li
     return str(path)
 
 
-def export_excel(news: List[NewsItem]) -> str:
+def export_csv(news: List[NewsItem]) -> str:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    path = OUTPUT_DIR / f"morning_report_{ts}.xlsx"
+    path = OUTPUT_DIR / f"morning_report_{ts}.csv"
 
-    rows = [
-        {
-            "source": n.source,
-            "title": n.title,
-            "published": n.published,
-            "link": n.link,
-            "summary": n.summary,
-        }
-        for n in news
-    ]
-    pd.DataFrame(rows).to_excel(path, index=False)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["source", "title", "published", "link", "summary"],
+        )
+        writer.writeheader()
+        for n in news:
+            writer.writerow(
+                {
+                    "source": n.source,
+                    "title": n.title,
+                    "published": n.published,
+                    "link": n.link,
+                    "summary": n.summary,
+                }
+            )
+
     return str(path)
