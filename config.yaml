@@ -1,0 +1,9 @@
+rss_sources:
+  Bloomberg: "https://feeds.bloomberg.com/markets/news.rss"
+  Reuters: "https://www.reutersagency.com/feed/?best-topics=business-finance&post_type=best"
+  WSJ: "https://feeds.a.dj.com/rss/RSSMarketsMain.xml"
+
+report:
+  output_dir: "outputs"
+  top_n: 5
+  brief_max_chars: 200
