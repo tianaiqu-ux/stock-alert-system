@@ -46,7 +46,12 @@ def _parse_date(raw: str) -> str:
 def fetch_rss(source: str, url: str, timeout: int = 15) -> List[NewsItem]:
     req = Request(url, headers={"User-Agent": USER_AGENT})
     with urlopen(req, timeout=timeout) as resp:
+        status_code = getattr(resp, "status", None) or resp.getcode()
         content = resp.read()
+
+    preview = content.decode("utf-8", errors="replace")[:200]
+    print(f"[RSS调试] {source} 状态码: {status_code}")
+    print(f"[RSS调试] {source} 内容前200字符: {preview}")
 
     root = ET.fromstring(content)
     items: List[NewsItem] = []
@@ -68,6 +73,7 @@ def fetch_rss(source: str, url: str, timeout: int = 15) -> List[NewsItem]:
                 )
             )
 
+    print(f"[RSS调试] {source} 解析 item 数量: {len(items)}")
     return items
 
 
@@ -76,7 +82,8 @@ def fetch_all_news() -> List[NewsItem]:
     for source, url in RSS_SOURCES.items():
         try:
             all_items.extend(fetch_rss(source, url))
-        except Exception:
+        except Exception as exc:
+            print(f"[RSS调试] {source} 抓取失败: {exc}")
             continue
 
     all_items.sort(key=lambda x: x.published, reverse=True)
